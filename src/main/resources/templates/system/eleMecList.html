@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>生产监控</title>
+    <link rel="stylesheet" href="${ctxPath}/assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="${ctxPath}/assets/module/admin.css?v=315"/>
+    <script type="text/javascript" src="${ctxPath}/assets/libs/jquery/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+    <% include("../layout/css.html"){} %>
+</head>
+<body>
+<!-- 正文开始 -->
+<div class="layui-fluid">
+
+    <div class="layui-card" style="width: 70%">
+        <div class="layui-card-header">矿山</div>
+        <div class="layui-card-body">
+            <div id="main2" style="height: 300px;width: 100%"></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var myChart2 = echarts.init(document
+            .getElementById('main2'));
+        option = {
+            title: {
+                text: '产量控制',
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['A区产量','B区产量']
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: {
+                        show: true
+                    },
+                    dataView: {
+                        show: true,
+                        readOnly: false
+                    },
+                    magicType: {
+                        show: true,
+                        type: ['line', 'bar']
+                    },
+                    restore: {
+                        show: true
+                    },
+                    saveAsImage: {
+                        show: true
+                    }
+                }
+            },
+            calculable: true,
+            xAxis: [{
+                type: 'category',
+                boundaryGap: false,
+                data: []
+            }],
+            yAxis: [{
+                type: 'value',
+                axisLabel: {
+                    formatter: '{value}'
+                }
+            }],
+            dataZoom:[{
+                type: 'slider',//图表下方的伸缩条
+                show : true, //是否显示
+                realtime : true, //拖动时，是否实时更新系列的视图
+
+                start :0 , //伸缩条开始位置（1-100），可以随时更改
+                end : 80, //伸缩条结束位置（1-100），可以随时更改
+
+            }],
+            series: [
+                {
+                    name: 'A区产量',
+                    type: 'line',
+                    data: [],
+                    markPoint: {
+                        data: [{
+                            type: 'max',
+                            name: '最大值'
+                        }, {
+                            type: 'min',
+                            name: '最小值'
+                        }]
+                    },
+
+                    markLine: {
+                        data: [{
+                            type: 'average',
+                            name: '平均值'
+                        }]
+                    }
+                },
+                {
+                    name: 'B区产量',
+                    type: 'line',
+                    data: [],
+                    markPoint: {
+                        data: [{
+                            type: 'max',
+                            name: '最大值'
+                        }, {
+                            type: 'min',
+                            name: '最小值'
+                        }]
+                    },
+
+                    markLine: {
+                        data: [{
+                            type: 'average',
+                            name: '平均值'
+                        }]
+                    }
+                },
+            ]
+        }
+
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart2.setOption(option);
+        myChart2.showLoading();
+        // 异步加载数据
+
+        $.ajax({
+            type:"post",
+            url:"powerMec/pageOne",
+            dataType:"json",
+            success:function(data) {
+                myChart2.setOption({
+                    xAxis: {
+                        data: data.date
+                    },
+                    series: [{
+                        name: 'A区产量',
+                        data: data.aprod
+                    },{
+                        name:'B区产量',
+                        data:data.bprod
+                    }]
+                });
+                myChart2.hideLoading();
+
+            }
+        });
+
+    </script>
+
+
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <!-- 表格顶部工具栏 -->
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">开始时间</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="startTime" id="startTime" readonly="readonly" placeholder="yyyy-MM-dd"
+                                   class="layui-input input-radius">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">结束时间</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="endTime" id="endTime" readonly="readonly" placeholder="yyyy-MM-dd"
+                                   class="layui-input input-radius">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn icon-btn" lay-filter="searchSubmit" lay-submit>
+                            <i class="layui-icon">&#xe615;</i>搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="layui-table" id="MineListTable" lay-filter="MineListTable"></table>
+        </div>
+    </div>
+</div>
+
+
+<!--图2-->
+
+<!-- js部分 -->
+<% include("../layout/js.html"){} %>
+<script>
+    layui.use(['layer', 'form', 'table', 'util', 'laydate', 'tableX'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var table = layui.table;
+        var util = layui.util;
+        var laydate = layui.laydate;
+        var tableX = layui.tableX;
+
+        // 渲染表格
+        var insTb = tableX.render({
+            elem: '#MineListTable',
+            url: 'powerMec/list',
+            page: true,
+            cellMinWidth: 100,
+            cols: [[
+                {type: 'numbers'},
+                {field: 'date', title: '日期', sort: true},
+                {field: 'outWood', sort: true, title: '尾排风机'},
+                {field: 'hightmpFan', title: '高温风机', sort: true},
+                {field: 'supByq', title: '辅助变压器', sort: true},
+                {field: 'eleValue', title: '发电量', sort: true},
+                {field: 'lowPower', title: '危废低压进线', sort: true},
+                {field: 'aprod', title: 'A区产量', sort: true},
+                {field: 'bprod', title: 'B区产量', sort: true},
+                {field: 'cusmEle', title: '发电自用电量', sort: true}
+            ]]
+        });
+
+        laydate.render({
+            elem: '#startTime',
+            type: 'datetime'
+        });
+        laydate.render({
+            elem: '#endTime',
+            type: 'datetime'
+        });
+
+        // 搜索
+        form.on('submit(searchSubmit)', function (data) {
+
+            insTb.reload({where: data.field,
+                page: {curr: 1}});
+        });
+
+
+
+    });
+</script>
+</body>
+</html>

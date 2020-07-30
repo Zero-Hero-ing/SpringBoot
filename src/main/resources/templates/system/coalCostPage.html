@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html  xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>welcome</title>
+    <link rel="stylesheet" href="${ctxPath}/assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="${ctxPath}/assets/module/admin.css?v=315"/>
+    <script type="text/javascript" src="${ctxPath}/assets/libs/jquery/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+    <% include("../layout/css.html"){} %>
+    <style>
+        /** 卡片轮播图样式 */
+        .admin-carousel .layui-carousel-ind {
+            position: absolute;
+            top: -41px;
+            text-align: right;
+        }
+
+        .admin-carousel .layui-carousel-ind ul {
+            background: 0 0;
+        }
+
+        .admin-carousel .layui-carousel-ind li {
+            background-color: #e2e2e2;
+        }
+
+        .admin-carousel .layui-carousel-ind li.layui-this {
+            background-color: #999;
+        }
+
+        /** 广告位轮播图 */
+        .admin-news .layui-carousel-ind {
+            height: 45px;
+        }
+
+        .admin-news a {
+            display: block;
+            line-height: 60px;
+            text-align: center;
+        }
+        .numberInfoSubTitle {
+            color: rgba(0, 0, 0, .45);
+            font-size: 14px;
+            height: 22px;
+            line-height: 22px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            word-break: break-all;
+        }
+
+        .numberInfoValue {
+            color: rgba(0, 0, 0, .85);
+            font-size: 24px;
+            margin-top: 10px;
+            height: 32px;
+            line-height: 32px;
+        }
+
+        .numberInfoSuffix {
+            color: rgba(0, 0, 0, .65);
+            font-size: 16px;
+            font-style: normal;
+            margin-left: 4px;
+            line-height: 32px;
+        }
+    </style>
+</head>
+<body>
+
+<!--<div class="layui-card-body" style="text-align: center;">-->
+<!--<h2 style="margin-top: 170px;margin-bottom: 20px;font-size: 28px;color: #91ADDC;">欢迎使用EasyWeb管理系统 !</h2>-->
+<!--<img src="../../assets/images/welcome.png" style="max-width: 100%;">-->
+<!--</div>-->
+<!-- 加载动画 -->
+<div class="page-loading">
+    <div class="ball-loader">
+        <span></span><span></span><span></span><span></span>
+    </div>
+</div>
+
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    煤耗量平均值<span class="layui-badge layui-bg-blue pull-right">日</span>
+                </div>
+                <div class="layui-card-body">
+                    <p class="lay-big-font">${avgcost}</p>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    煤炭产量<span class="layui-badge layui-bg-black pull-right">周</span>
+                </div>
+                <div class="layui-card-body">
+                    <p class="lay-big-font">${prodNum}</p>
+
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    煤炭产率<span class="layui-badge layui-bg-green pull-right">月</span>
+                </div>
+                <div class="layui-card-body">
+                    <p class="lay-big-font">${prodRate}</p>
+
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    总喂料量<span class="layui-badge layui-bg-orange pull-right">月</span>
+                </div>
+                <div class="layui-card-body">
+                    <p class="lay-big-font">${feedNum}</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-row">
+        <div class="layui-col-md8">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    煤耗数据分析<span class="layui-badge layui-bg-orange pull-right">月</span>
+                </div>
+                <div class="layui-card-body">
+                    <div id="main1" style="height: 500px;width: 100%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="layui-card">
+                <div class="layui-card-header">水泥产率</div>
+                <div class="layui-card-body">
+                    <div id="main2" style="height: 210px;width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="layui-card">
+                <div class="layui-card-header">煤粉消耗量</div>
+                <div class="layui-card-body">
+                    <div id="main3" style="height: 210px;width: 100%"></div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    </div>
+</div>
+<script type="text/javascript" src="${ctxPath}/assets/libs/layui/layui.js"></script>
+<!--图1-->
+<script type="text/javascript">
+    var myChart1 = echarts.init(document
+        .getElementById('main1'));
+    option = {
+        title: {
+            text: '产量煤耗关系',
+            subtext: '',
+            left: 'center'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                animation: false
+            }
+        },
+        legend: {
+            data: ['产量', '煤耗量'],
+            left: 10
+        },
+        toolbox: {
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        axisPointer: {
+            link: {xAxisIndex: 'all'}
+        },
+        dataZoom: [
+            {
+                show: true,
+                realtime: true,
+                start: 30,
+                end: 70,
+                xAxisIndex: [0, 1]
+            },
+            {
+                type: 'inside',
+                realtime: true,
+                start: 30,
+                end: 70,
+                xAxisIndex: [0, 1]
+            }
+        ],
+        grid: [{
+            left: 50,
+            right: 50,
+            height: '35%'
+        }, {
+            left: 50,
+            right: 50,
+            top: '55%',
+            height: '35%'
+        }],
+        xAxis: [
+            {
+                type: 'category',
+                boundaryGap: false,
+                axisLine: {onZero: true},
+                data: []
+            },
+            {
+                gridIndex: 1,
+                type: 'category',
+                boundaryGap: false,
+                axisLine: {onZero: true},
+                data: [],
+                position: 'top'
+            }
+        ],
+        yAxis: [
+            {
+                name: '产量(t)',
+                type: 'value',
+                max: 100
+            },
+            {
+                gridIndex: 1,
+                name: '煤耗量(t)',
+                type: 'value',
+                inverse: true
+            }
+        ],
+        series: [
+            {
+                name: '产量',
+                type: 'line',
+                symbolSize: 8,
+                hoverAnimation: false,
+                data: []
+            },
+            {
+                name: '煤耗量',
+                type: 'line',
+                xAxisIndex: 1,
+                yAxisIndex: 1,
+                symbolSize: 8,
+                hoverAnimation: false,
+                data: []
+            }
+        ]
+    };
+    myChart1.setOption(option);
+    myChart1.showLoading();
+
+    $.ajax({
+        type:"post",
+        url:"coalclik/pageOne",
+        dataType:"json",
+        success:function(data) {
+            myChart1.setOption({
+                xAxis: [{
+                    data: data.date
+                },{
+                    data: data.date
+                }],
+                series: [{
+                    name: '产量',
+                    data: data.prodNum
+                }, {
+                        name: '煤耗量',
+                        data: data.coalCost
+                    }
+                ]
+            });
+            myChart1.hideLoading();
+
+        }
+    });
+
+</script>
+
+
+<!--图2-->
+<script type="text/javascript">
+    var myChart2 = echarts.init(document
+        .getElementById('main2'));
+    option = {
+        title: {
+            text: '产率变化',
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['产率']
+        },
+        toolbox: {
+            show: true,
+            feature: {
+                mark: {
+                    show: true
+                },
+                dataView: {
+                    show: true,
+                    readOnly: false
+                },
+                magicType: {
+                    show: true,
+                    type: ['line', 'bar']
+                },
+                restore: {
+                    show: true
+                },
+                saveAsImage: {
+                    show: true
+                }
+            }
+        },
+        calculable: true,
+        xAxis: [{
+            type: 'category',
+            boundaryGap: false,
+            data: []
+        }],
+        yAxis: [{
+            type: 'value',
+            axisLabel: {
+                formatter: '{value}'
+            }
+        }],
+        dataZoom:[{
+            type: 'slider',//图表下方的伸缩条
+            show : true, //是否显示
+            realtime : true, //拖动时，是否实时更新系列的视图
+
+            start :0 , //伸缩条开始位置（1-100），可以随时更改
+            end : 3.5, //伸缩条结束位置（1-100），可以随时更改
+
+        }],
+        series: [
+            {
+                name: '产率',
+                type: 'line',
+                data: [],
+                markPoint: {
+                    data: [{
+                        type: 'max',
+                        name: '最大值'
+                    }, {
+                        type: 'min',
+                        name: '最小值'
+                    }]
+                },
+                markLine: {
+                    data: [{
+                        type: 'average',
+                        name: '平均值'
+                    }]
+                }
+            }
+        ]
+    }
+
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart2.setOption(option);
+    myChart2.showLoading();
+    // 异步加载数据
+
+    $.ajax({
+        type:"post",
+        url:"coalclik/pageTwo",
+        dataType:"json",
+        success:function(data) {
+            myChart2.setOption({
+                xAxis: {
+                    data: data.date
+                },
+                series: [{
+                    name: '产率',
+                    data: data.prodRate
+                }]
+            });
+            myChart2.hideLoading();
+
+        }
+    });
+
+</script>
+<!--图3-->
+<script type="text/javascript">
+    var myChart3= echarts.init(document
+        .getElementById('main3'));
+    option = {
+        title: {
+            text: '喂料量变化',
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['喂料量']
+        },
+        toolbox: {
+            show: true,
+            feature: {
+                mark: {
+                    show: true
+                },
+                dataView: {
+                    show: true,
+                    readOnly: false
+                },
+                magicType: {
+                    show: true,
+                    type: ['line', 'bar']
+                },
+                restore: {
+                    show: true
+                },
+                saveAsImage: {
+                    show: true
+                }
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: []
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [{
+            name: '喂料量',
+            data: [],
+            type: 'line'
+        }],
+        dataZoom:[{
+            type: 'slider',//图表下方的伸缩条
+            show : true, //是否显示
+            realtime : true, //拖动时，是否实时更新系列的视图
+            start : 2019/1/1, //伸缩条开始位置（1-100），可以随时更改
+            end : 2019/4/24, //伸缩条结束位置（1-100），可以随时更改
+
+        }]
+    };
+    myChart3.setOption(option);
+    myChart3.showLoading();
+    // 异步加载数据
+
+    $.ajax({
+        type:"post",
+        url:"coalclik/pageOne",
+        dataType:"json",
+        success:function(data) {
+            myChart3.setOption({
+                xAxis: {
+                    data: data.date
+                },
+                series: [{
+                    name: '喂料量',
+                    data: data.feedNum
+                }]
+            });
+            myChart3.hideLoading();
+
+        }
+    });
+
+</script>
+<script type="text/javascript" src="${ctxPath}/assets/js/common.js?v=315"></script>
+<!-- js部分 -->
+<% include("../layout/js.html"){} %>
+<script>
+    layui.use(['layer'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+
+    });
+</script>
+</body>
+</html>
